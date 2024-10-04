@@ -27,3 +27,5 @@ Next, the Owner should do the same. Make changes to a file in the repository, sa
 ### Step 6: Collaborator `pull`
 
 The Collaborator can now `pull` down those Owner changes, and all copies are once again fully synced. And you’re off to collaborating.
+
+Ahead
