@@ -2,6 +2,8 @@
 
 ## `Git` Workflow
 
+## Rain
+
 ### Step 1: Collaborator clone
 
 To be able to contribute to a repository, the Collaborator must clone the repository from the Owner’s GitHub account. To do this, the Collaborator should visit the GitHub page for the Owner’s repository, and then copy the clone URL. In R Studio, the Collaborator will create a new project from version control by pasting this clone URL into the appropriate dialog (see the earlier chapter introducing GitHub).
