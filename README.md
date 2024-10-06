@@ -2,11 +2,7 @@
 
 ## `Git` Workflow
 
-<<<<<<< HEAD
-## Ziling
-=======
-## Rain
->>>>>>> 39c95195b82c23c91b011bf2b3113b0a560c9b01
+## Ziling & Rain
 
 ### Step 1: Collaborator clone
 
