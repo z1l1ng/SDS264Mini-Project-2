@@ -1,0 +1,47 @@
+---
+title: "Mini-Project 2"
+author: "Rain & Ziling"
+sidebar: false
+format:
+  html: default
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(rvest)
+library(polite)
+library(sf)
+library(maps)
+library(viridis)
+library(leaflet)
+library(htmltools)
+library(janitor)
+library(httr2)
+library(httr)
+library(lubridate)
+library(tidycensus)
+library(purrr)
+```
+
+>> TABLE SCRAPING FOR SDS 264
+
+```{r}
+robotstxt::paths_allowed("https://pokemondb.net/pokedex/all")
+
+session <- bow("https://pokemondb.net/pokedex/all", force = TRUE)
+
+result <- scrape(session) |>
+  html_nodes(css = "table") |>
+  html_table(header = TRUE, fill = TRUE)
+
+
+html_table <- result[[1]] 
+
+html_table |>
+  clean_names() |>
+  distinct(type)
+```
