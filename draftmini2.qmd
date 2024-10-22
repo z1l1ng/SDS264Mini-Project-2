@@ -30,18 +30,7 @@ library(purrr)
 >> TABLE SCRAPING FOR SDS 264
 
 ```{r}
-robotstxt::paths_allowed("https://pokemondb.net/pokedex/all")
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Stardew_Valley_Wiki")
 
-session <- bow("https://pokemondb.net/pokedex/all", force = TRUE)
-
-result <- scrape(session) |>
-  html_nodes(css = "table") |>
-  html_table(header = TRUE, fill = TRUE)
-
-
-html_table <- result[[1]] 
-
-html_table |>
-  clean_names() |>
-  distinct(type)
+session <- bow("https://stardewvalleywiki.com/Stardew_Valley_Wiki", force = TRUE)
 ```
