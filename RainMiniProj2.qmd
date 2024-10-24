@@ -59,7 +59,7 @@ result <- scrape(session) |>
 sd_itemid <- result[[1]]
 ```
 
-### List of animal Items
+### List of animal items
 
 sd_animal_prices
 
@@ -80,8 +80,15 @@ sd_animal_prices <- result_animals[[2]]
 
 tidy_sd_animal_price<-sd_animal_prices|>
   clean_names()|>
-  select(item, profession, quality, sell_price)|>
+  select(item, 
+         profession, 
+         quality, 
+         sell_price)|>
   group_by(item, profession)|>
-  pivot_wider(names_from = quality, values_from = sell_price, values_fn = mean)|>
-  clean_names()
+  pivot_wider(names_from = quality, 
+              values_from = sell_price, 
+              names_glue = "{quality}_price",
+              values_fn = mean)|>
+  clean_names()|>
+  mutate(category = "animal product")
 ```
