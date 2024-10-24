@@ -1,0 +1,61 @@
+---
+title: "StardewInterestDS"
+author: "Rain Hartos"
+format: pdf
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: FALSE
+
+library(tidyverse)
+library(stringr)
+library(rvest)
+library(polite)
+library(sf)
+library(maps)
+library(viridis)
+library(leaflet)
+library(htmltools)
+
+```
+
+## Areas of Interest
+
+**Items**
+
+-   IDs
+
+-   Name
+
+-   Image (png) *We will need to look into*
+
+-   base price
+
+-   sell price
+
+**Characters**
+
+Possible sites to scrapes:
+
+<https://stardewids.com/>
+
+<https://stardewvalleywiki.com/Category:Items>
+
+```{r}
+# check that scraping is allowed 
+robotstxt::paths_allowed("https://stardewids.com")
+
+session <- bow("https://stardewids.com", force = TRUE)
+
+result <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+sd_itemid <- result[[1]]
+```
+
+```{r}
+
+```
