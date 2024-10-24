@@ -92,3 +92,69 @@ tidy_sd_animal_price<-sd_animal_prices|>
   clean_names()|>
   mutate(category = "animal product")
 ```
+
+### List of Minerals
+```{r}
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Minerals")
+
+session <- bow("https://stardewvalleywiki.com/Minerals", force = TRUE)
+
+result_minerals <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+#interested in tables 1-4
+```
+
+```{r}
+
+#This function takes a scraped minerals table and preps it for joining with other datasets
+tidy_minerals <- function(data, sub_cat){
+  data|>
+  clean_names()|>
+  mutate(item = name,
+         category = "mineral",
+         sub_category = sub_cat)|>
+  rename(regular_sell_price = sell_price)|>
+  pivot_longer(
+    cols = c(gemologist_sell_price,
+             regular_sell_price),
+    names_to = "profession",
+    values_to = "sell_price"
+  )|>
+  select(item, 
+         profession, 
+         sell_price,
+         category,
+         sub_category)|>
+  mutate(sell_price = as.numeric(str_extract(sell_price, '(?<=data-sort-value=")\\d+')),
+         profession = ifelse(profession == "gemologist_sell_price",
+                             "gemologist", NA))
+  
+ 
+}
+
+#use function for the 1-3 tables 
+minerals_tbl <- vector("list", length = 4)
+mineral_sub_cat <- c("foraged mineral",
+                     "gem",
+                     "geode mineral",
+                     "geode")
+for (i in 1:3){
+  minerals_tbl[[i]] <- tidy_minerals(result_minerals[[i]], mineral_sub_cat[i])
+  
+}
+
+
+minerals_tbl[[4]]<- result_minerals[[4]]|>
+  clean_names()|>
+  mutate(item = name,
+         category = "mineral",
+         sub_category = "geode",
+         sell_price = as.numeric(str_extract(sell_price, '(?<=data-sort-value=")\\d+')),
+         profession = NA)|>
+  select(item, sell_price, category, sub_category, profession)
+
+tidy_sd_minerals_price <- bind_rows(minerals_tbl)
+  
+```
+
