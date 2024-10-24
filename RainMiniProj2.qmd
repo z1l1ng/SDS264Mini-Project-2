@@ -18,6 +18,7 @@ library(maps)
 library(viridis)
 library(leaflet)
 library(htmltools)
+library(janitor)
 
 ```
 
@@ -43,6 +44,8 @@ Possible sites to scrapes:
 
 <https://stardewvalleywiki.com/Category:Items>
 
+## List of all the items
+
 ```{r}
 # check that scraping is allowed 
 robotstxt::paths_allowed("https://stardewids.com")
@@ -56,6 +59,29 @@ result <- scrape(session) |>
 sd_itemid <- result[[1]]
 ```
 
-```{r}
+### List of animal Items
 
+sd_animal_prices
+
+```{r}
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Animal_Products_Profitability")
+
+session <- bow("https://stardewvalleywiki.com/Animal_Products_Profitability", force = TRUE)
+
+result_animals <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+sd_animal_prices <- result_animals[[2]]
+```
+
+```{r}
+#clean up the sd_animal_prices tibble
+
+tidy_sd_animal_price<-sd_animal_prices|>
+  clean_names()|>
+  select(item, profession, quality, sell_price)|>
+  group_by(item, profession)|>
+  pivot_wider(names_from = quality, values_from = sell_price, values_fn = mean)|>
+  clean_names()
 ```
