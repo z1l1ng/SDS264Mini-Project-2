@@ -112,5 +112,198 @@ bind_rows(base_tbl, fisher_tbl, angler_tbl)
 ```{r}
 fishes_list <- pull(fishes) # list of our fishes tibble
 prices <- purrr::map(fishes_list, threeprofessions)
+
+draft_fish <- bind_rows(prices) |>
+  arrange(item)
+
+empty_indices <- which(sapply(prices, function(tbl) nrow(tbl) == 0))
+
+fish_needed <- fishes_list[empty_indices]
+```
+
+```{r}
+# function for prices
+threeprofessions_shiftedmore <- function(fish) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(1) tr:nth-child(4) td+ td")
+    item <- fish
+    
+base_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price)
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(2) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(2) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(2) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(2) tr:nth-child(4) td+ td")
+    item <- fish
+    
+fisher_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Fisher"
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(3) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(3) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(3) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(15) tr td:nth-child(3) tr:nth-child(4) td+ td")
+    item <- fish
+    
+angler_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Angler"
+    )
+
+bind_rows(base_tbl, fisher_tbl, angler_tbl)
+}
+
+```
+
+```{r}
+prices2 <- purrr::map(fish_needed, threeprofessions_shiftedmore)
+
+shifted_fish <- bind_rows(prices2) |>
+  arrange(item)
+
+empty_indices2 <- which(sapply(prices2, function(tbl) nrow(tbl) == 0))
+
+fish_needed2 <- fish_needed[empty_indices2]
+```
+
+```{r}
+threeprofessions_shiftedless <- function(fish) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(4) td+ td")
+    item <- fish
+    
+base_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price)
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(4) td+ td")
+    item <- fish
+
+fisher_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Fisher"
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(4) td+ td")
+    item <- fish
+    
+angler_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Angler"
+    )
+
+bind_rows(base_tbl, fisher_tbl, angler_tbl)
+}
+```
+
+```{r}
+prices3 <- purrr::map(fish_needed2, threeprofessions_shiftedless)
+
+shifted_fish3 <- bind_rows(prices3) |>
+  arrange(item)
+
+empty_indices3 <- which(sapply(prices3, function(tbl) nrow(tbl) == 0))
+
+fish_needed3 <- fish_needed2[empty_indices3]
+```
+
+```{r}
+threeprofessions_two <- function(fish) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    item <- fish
+    
+base_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(2) tr:nth-child(2) td+ td")
+    item <- fish
+
+fisher_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      profession = "Fisher"
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(3) tr:nth-child(2) td+ td")
+    item <- fish
+    
+angler_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      profession = "Angler"
+    )
+
+bind_rows(base_tbl, fisher_tbl, angler_tbl)
+}
+```
+
+```{r}
+prices4 <- purrr::map(fish_needed3, threeprofessions_two)
+
+shifted_fish4 <- bind_rows(prices4) |>
+  arrange(item)
+
+empty_indices4 <- which(sapply(prices4, function(tbl) nrow(tbl) == 0))
+
+fish_needed4 <- fish_needed3[empty_indices4]
+
+# NO MORE FISH NEEDED 
+```
+
+```{r}
+fish_prices <- bind_rows(prices, prices2, prices3, prices4) |>
+  arrange(item)
 ```
 
