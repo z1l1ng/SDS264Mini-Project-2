@@ -40,7 +40,8 @@ fishes <- fishes |>
   mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
   unnest(Fish) |>
   mutate(Fish = str_replace_all(Fish, " ", "_")) |>
-  distinct(Fish)
+  distinct(Fish) |>
+  filter(Fish != "_Super_Cucumber")
 
 locations <- result[[225]] |> 
   select(Location = 1, Fish = 2) |>
@@ -49,5 +50,67 @@ locations <- result[[225]] |>
   mutate(Fish = str_replace_all(Fish, " ", "_"))
 ```
 
+```{r}
+get_price <- function(page, css_selector) {
+  page |>
+  html_nodes(css_selector) |>
+  html_text()
+}
 
-https://stardewvalleywiki.com/Fish
+# function for prices
+threeprofessions <- function(fish) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(1) tr:nth-child(4) td+ td")
+    item <- fish
+    
+base_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price)
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(2) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(2) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(2) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(2) tr:nth-child(4) td+ td")
+    item <- fish
+    
+fisher_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Fisher"
+    )
+
+    regular_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(3) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(3) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(3) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(14) tr td:nth-child(3) tr:nth-child(4) td+ td")
+    item <- fish
+    
+angler_tbl <- tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Angler"
+    )
+
+bind_rows(base_tbl, fisher_tbl, angler_tbl)
+}
+```
+
+```{r}
+fishes_list <- pull(fishes) # list of our fishes tibble
+prices <- purrr::map(fishes_list, threeprofessions)
+```
+
