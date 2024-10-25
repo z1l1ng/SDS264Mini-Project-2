@@ -305,5 +305,10 @@ fish_needed4 <- fish_needed3[empty_indices4]
 ```{r}
 fish_prices <- bind_rows(prices, prices2, prices3, prices4) |>
   arrange(item)
+
+write.csv(fish_prices, "fish_prices.csv")
+
+fish_prices |>
+  left_join(locations, join_by(item == Fish), relationship = "many-to-many")
 ```
 
