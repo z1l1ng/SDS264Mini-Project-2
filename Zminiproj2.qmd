@@ -34,4 +34,48 @@ robotstxt::paths_allowed("https://stardewvalleywiki.com/Stardew_Valley_Wiki")
 
 session <- bow("https://stardewvalleywiki.com/Stardew_Valley_Wiki", force = TRUE)
 ```
+
+
+```{r}
+#Perform Steps 0-3 using the polite package
+crops <- bow("https://stardewvalleywiki.com/Crops", force = TRUE)
+
+result <- scrape(crops) |>
+  html_nodes(css = "table") |>
+  html_table(header = TRUE, fill = TRUE)
+
+seasonal_crops <- result[[134]][2] #table of the season crops so we can use that list
+
+seasonal_crops <- seasonal_crops |>
+  mutate(Crops = strsplit(Crops, " • ", fixed = TRUE)) |>
+  unnest(Crops) |>
+  mutate(Crops = str_replace(Crops, " ", "_"))
 ```
+
+```{r}
+get_price <- function(page, css_selector) {
+  page |>
+  html_nodes(css_selector) |>
+  html_text()
+}
+
+# function for base prices
+scrape_page <- function(crop) {
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(4) td+ td")
+    
+    tibble(
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price)
+    )
+}
+
+scrape_page("Artichoke")
+```
+
