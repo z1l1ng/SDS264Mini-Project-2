@@ -194,14 +194,15 @@ qi_fruit <-bind_rows(base_qi_fruit, tiller_qi_fruit)
 #Cactus_Fruit
 
 # Base
-url <- str_c("https://stardewvalleywiki.com/", "Cactus_Fruit")
+shifted_down_table <- function(crop){
+url <- str_c("https://stardewvalleywiki.com/", crop)
 page <- read_html(url)
     regular_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(1) td+ td")
     silver_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(2) td+ td")
     gold_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(3) td+ td")
     iridium_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(4) td+ td")
-base_cactus_fruit <- tibble(
-      item = "Cactus_Fruit",
+base_tbl <- tibble(
+      item = crop,
       regular_price = parse_number(regular_price),
       silver_price = parse_number(silver_price), 
       gold_price = parse_number(gold_price),
@@ -212,48 +213,26 @@ base_cactus_fruit <- tibble(
     silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
     gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
     iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
-tiller_cactus_fruit <- tibble(
-      item = "Cactus_Fruit",
+tiller_tbl <- tibble(
+      item = crop,
       regular_price = parse_number(regular_price),
       silver_price = parse_number(silver_price), 
       gold_price = parse_number(gold_price),
       iridium_price = parse_number(iridium_price),
       profession = "Tiller")
 
-cactus_fruit <-bind_rows(base_cactus_fruit, tiller_cactus_fruit)
+bind_rows(base_tbl,tiller_tbl)
+}
+
+cactus_fruit <- shifted_down_table("Cactus_Fruit")
+cactus_fruit
 ```
 
 ```{r}
 # Grape (HAS THE SAME AS CATCTUS FRUIT, look into this for formatting & fish)
 
-# Base
-url <- str_c("https://stardewvalleywiki.com/", "Grape")
-page <- read_html(url)
-    regular_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(1) td+ td")
-    silver_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(2) td+ td")
-    gold_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(3) td+ td")
-    iridium_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(4) td+ td")
-base_grape <- tibble(
-      item = "Grape",
-      regular_price = parse_number(regular_price),
-      silver_price = parse_number(silver_price), 
-      gold_price = parse_number(gold_price),
-      iridium_price = parse_number(iridium_price))
-
-# Tiller
-    regular_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(1) td+ td")
-    silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
-    gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
-    iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
-tiller_grape <- tibble(
-      item = "Grape",
-      regular_price = parse_number(regular_price),
-      silver_price = parse_number(silver_price), 
-      gold_price = parse_number(gold_price),
-      iridium_price = parse_number(iridium_price),
-      profession = "Tiller")
-
-grape <-bind_rows(base_grape, tiller_grape)
+grape <- shifted_down_table("Grape")
+grape
 ```
 
 ```{r}
