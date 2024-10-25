@@ -78,7 +78,7 @@ sd_animal_prices <- result_animals[[2]]
 ```{r}
 #clean up the sd_animal_prices tibble
 
-tidy_sd_animal_price<-sd_animal_prices|>
+tidy_sd_animal_price <- sd_animal_prices|>
   clean_names()|>
   select(item, 
          profession, 
