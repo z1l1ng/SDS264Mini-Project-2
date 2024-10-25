@@ -49,7 +49,8 @@ seasonal_crops <- result[[134]][2] #table of the season crops so we can use that
 seasonal_crops <- seasonal_crops |>
   mutate(Crops = strsplit(Crops, " • ", fixed = TRUE)) |>
   unnest(Crops) |>
-  mutate(Crops = str_replace(Crops, " ", "_"))
+  mutate(Crops = str_replace_all(Crops, " ", "_")) |>
+  distinct(Crops)
 ```
 
 ```{r}
@@ -60,22 +61,98 @@ get_price <- function(page, css_selector) {
 }
 
 # function for base prices
-scrape_page <- function(crop) {
+base_prices <- function(crop) {
   url <- str_c("https://stardewvalleywiki.com/", crop)
     page <- read_html(url)
     regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(1) td+ td")
     silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(2) td+ td")
     gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(3) td+ td")
     iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(4) td+ td")
+    item <- crop
     
     tibble(
+      item = item,
       regular_price = parse_number(regular_price),
       silver_price = parse_number(silver_price), 
       gold_price = parse_number(gold_price),
       iridium_price = parse_number(iridium_price)
     )
 }
+```
 
-scrape_page("Artichoke")
+```{r}
+seasonal_crops_list <- pull(seasonal_crops) # list of our crops tibble
+prices <- purrr::map(seasonal_crops_list, base_prices) # apply function to all crops in list, note that item  46 (Tea_Leaves), 44(Sweet Gem Berry), 43(Qi_Fruit), 41(Cactus_Fruit), 36(Grape), 4(Coffee_Bean) have issues.
+prices <- prices[-46][-44][-43][-41][-36][-4]
+
+base_crop_prices <- bind_rows(prices) |>
+  mutate(profession = as.character(NA))
+```
+
+```{r}
+tiller_prices <- function(crop) {
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(4) td+ td")
+    item <- crop
+    
+    tibble(
+      item = item,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price)
+    )
+}
+```
+
+```{r}
+prices2 <- purrr::map(seasonal_crops_list, tiller_prices)
+prices2 <- prices2[-46][-44][-43][-41][-36][-4]
+
+tiller_crop_prices <- bind_rows(prices2) |>
+  mutate(profession = "Tiller") 
+tiller_crop_prices |>
+  filter(item == "Corn")
+```
+
+```{r}
+# First chunks of crops 
+draft_crops <- bind_rows(base_crop_prices, tiller_crop_prices) |>
+  arrange(item)
+draft_crops |>
+  filter(item == "Fiddlehead_Fern")
+```
+
+```{r}
+other_crops <- c("Apple", "Blackberry", "Pomegranate", "Wild_Plum", "Apricot", "Cherry", "Spice_Berry", "Peach", "Orange", "Crystal_Fruit", "Banana", "Mango", "Fiddlehead_Fern")
+
+other_crops_prices <- purrr::map(other_crops, base_prices)
+other_crops_prices <- other_crops_prices[-10][-7][-4][-2]
+base_other_crops <- bind_rows(other_crops_prices)
+
+other_crops_prices2 <- purrr::map(other_crops, tiller_prices)
+other_crops_prices2 <- other_crops_prices2[-10][-7][-4][-2]
+tiller_other_crops <- bind_rows(other_crops_prices2) |>
+  mutate(profession = "Tiller") 
+
+other_crop_tbl <-bind_rows(base_other_crops, tiller_other_crops) |>
+  arrange(item)
+```
+
+```{r}
+draft_crops2 <- bind_rows(draft_crops, other_crop_tbl) |>
+  arrange(item)
+```
+
+#WHEN PUT IN FINAL add list of crops to main since we know those web pages have that same form. 
+
+# NOW NEED TO FIGURE OUT FOR remaining nine items. 
+
+```{r}
+# still need (Tea_Leaves), (Qi_Fruit), (Cactus_Fruit), (Grape), (Coffee_Bean), 4(Wild Plum), 2(Blackberry), 7(Spice_Berry), 10 (Cyrstal_Fruit)
 ```
 
