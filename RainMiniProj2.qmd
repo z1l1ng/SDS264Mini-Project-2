@@ -155,6 +155,19 @@ minerals_tbl[[4]]<- result_minerals[[4]]|>
   select(item, sell_price, category, sub_category, profession)
 
 tidy_sd_minerals_price <- bind_rows(minerals_tbl)
-  
 ```
+
+###List of Fish
+
+```{r}
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Fish")
+
+session <- bow("https://stardewvalleywiki.com/Fish", force = TRUE)
+
+result_fish <- scrape(session) |>
+  html_nodes("nth-child(43)") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+```
+
 
