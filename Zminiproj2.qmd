@@ -153,6 +153,16 @@ draft_crops2 <- bind_rows(draft_crops, other_crop_tbl) |>
 # NOW NEED TO FIGURE OUT FOR remaining nine items. 
 
 ```{r}
+table_function <- function(crop){
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+  page <- read_html(url)
+  get_price(page, "table")
+}
+
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+    page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(1) td+ td")
+table_function("Qi_Fruit")
 # still need (Tea_Leaves), (Qi_Fruit), (Cactus_Fruit), (Grape), (Coffee_Bean), 4(Wild Plum), 2(Blackberry), 7(Spice_Berry), 10 (Cyrstal_Fruit)
 ```
 
