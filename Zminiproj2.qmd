@@ -167,6 +167,7 @@ tiller_tea_leaves <- tibble(
       profession = "Tiller")
 
 tea_leaves <-bind_rows(base_tea_leaves, tiller_tea_leaves)
+tea_leaves
 ```
 
 ```{r}
@@ -188,6 +189,7 @@ tiller_qi_fruit <- tibble(
       profession = "Tiller")
 
 qi_fruit <-bind_rows(base_qi_fruit, tiller_qi_fruit)
+qi_fruit
 ```
 
 ```{r}
@@ -281,6 +283,22 @@ wild_plum
 
 ```{r}
 #Blackberry
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Blackberry")
+page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(4) td+ td")
+blackberry <- tibble(
+      item = "Blackberry",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
+
+blackberry
 ```
 
 ```{r}
@@ -295,5 +313,10 @@ spice_berry
 
 crystal_fruit <- single_noprofession("Crystal_Fruit")
 crystal_fruit
+```
+
+```{r}
+crops_prices <- bind_rows(draft_crops2, tea_leaves, qi_fruit, cactus_fruit, grape, coffee_bean, wild_plum, blackberry, spice_berry, crystal_fruit)
+crops_prices
 ```
 
