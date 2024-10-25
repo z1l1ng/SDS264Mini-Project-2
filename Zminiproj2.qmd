@@ -317,6 +317,8 @@ crystal_fruit
 
 ```{r}
 crops_prices <- bind_rows(draft_crops2, tea_leaves, qi_fruit, cactus_fruit, grape, coffee_bean, wild_plum, blackberry, spice_berry, crystal_fruit)
-crops_prices
+
+
+write.csv(crops_prices, "crop_prices.csv")
 ```
 
