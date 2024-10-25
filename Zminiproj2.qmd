@@ -115,16 +115,12 @@ prices2 <- prices2[-46][-44][-43][-41][-36][-4]
 
 tiller_crop_prices <- bind_rows(prices2) |>
   mutate(profession = "Tiller") 
-tiller_crop_prices |>
-  filter(item == "Corn")
 ```
 
 ```{r}
 # First chunks of crops 
 draft_crops <- bind_rows(base_crop_prices, tiller_crop_prices) |>
   arrange(item)
-draft_crops |>
-  filter(item == "Fiddlehead_Fern")
 ```
 
 ```{r}
@@ -150,19 +146,175 @@ draft_crops2 <- bind_rows(draft_crops, other_crop_tbl) |>
 
 #WHEN PUT IN FINAL add list of crops to main since we know those web pages have that same form. 
 
-# NOW NEED TO FIGURE OUT FOR remaining nine items. 
+# NOW NEED TO FIGURE OUT FOR remaining nine items. still need (Tea_Leaves), (Qi_Fruit), (Cactus_Fruit), (Grape), (Coffee_Bean), (Wild Plum), (Blackberry), (Spice_Berry), (Crystal_Fruit)
 
 ```{r}
-table_function <- function(crop){
-  url <- str_c("https://stardewvalleywiki.com/", crop)
-  page <- read_html(url)
-  get_price(page, "table")
+# Tea Leaves
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Tea_Leaves")
+page <- read_html(url)
+regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) td+ td")
+base_tea_leaves <- tibble(
+      item = "Tea_Leaves",
+      regular_price = parse_number(regular_price))
+
+# Tiller
+regular_price <- get_price(page, "tr:nth-child(10) td+ td td+ td")
+tiller_tea_leaves <- tibble(
+      item = "Tea_Leaves",
+      regular_price = parse_number(regular_price),
+      profession = "Tiller")
+
+tea_leaves <-bind_rows(base_tea_leaves, tiller_tea_leaves)
+```
+
+```{r}
+#Qi_Fruit
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Qi_Fruit")
+page <- read_html(url)
+regular_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) td+ td")
+base_qi_fruit <- tibble(
+      item = "Qi_Fruit",
+      regular_price = parse_number(regular_price))
+
+# Tiller
+regular_price <- get_price(page, "tr:nth-child(9) td+ td td+ td")
+tiller_qi_fruit <- tibble(
+      item = "Qi_Fruit",
+      regular_price = parse_number(regular_price),
+      profession = "Tiller")
+
+qi_fruit <-bind_rows(base_qi_fruit, tiller_qi_fruit)
+```
+
+```{r}
+#Cactus_Fruit
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Cactus_Fruit")
+page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(4) td+ td")
+base_cactus_fruit <- tibble(
+      item = "Cactus_Fruit",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
+
+# Tiller
+    regular_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
+tiller_cactus_fruit <- tibble(
+      item = "Cactus_Fruit",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Tiller")
+
+cactus_fruit <-bind_rows(base_cactus_fruit, tiller_cactus_fruit)
+```
+
+```{r}
+# Grape (HAS THE SAME AS CATCTUS FRUIT, look into this for formatting & fish)
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Grape")
+page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(4) td+ td")
+base_grape <- tibble(
+      item = "Grape",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
+
+# Tiller
+    regular_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
+tiller_grape <- tibble(
+      item = "Grape",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price),
+      profession = "Tiller")
+
+grape <-bind_rows(base_grape, tiller_grape)
+```
+
+```{r}
+#Coffee_Bean
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Coffee_Bean")
+page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(11) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
+coffee_bean <- tibble(
+      item = "Coffee_Bean",
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
+
+coffee_bean
+```
+
+```{r}
+#Wild_Plum
+
+# Base
+single_noprofession <- function(crop){
+url <- str_c("https://stardewvalleywiki.com/", crop)
+page <- read_html(url)
+    regular_price <- get_price(page, "tr:nth-child(9) tr:nth-child(1) td+ td")
+    silver_price <- get_price(page, "tr:nth-child(9) td+ td tr:nth-child(2) td+ td")
+    gold_price <- get_price(page, "tr:nth-child(9) td+ td tr:nth-child(3) td+ td")
+    iridium_price <- get_price(page, "tr:nth-child(9) td+ td tr:nth-child(4) td+ td")
+    
+tibble(
+      item = crop,
+      regular_price = parse_number(regular_price),
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
 }
 
-  url <- str_c("https://stardewvalleywiki.com/", crop)
-    page <- read_html(url)
-    regular_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(1) td+ td")
-table_function("Qi_Fruit")
-# still need (Tea_Leaves), (Qi_Fruit), (Cactus_Fruit), (Grape), (Coffee_Bean), 4(Wild Plum), 2(Blackberry), 7(Spice_Berry), 10 (Cyrstal_Fruit)
+wild_plum <- single_noprofession("Wild_Plum")
+wild_plum
+```
+
+```{r}
+#Blackberry
+```
+
+```{r}
+#Spice_Berry same as Wild_Plum, look into this for function as well!
+
+spice_berry <- single_noprofession("Spice_Berry")
+spice_berry
+```
+
+```{r}
+#Crystal_Fruit
+
+crystal_fruit <- single_noprofession("Crystal_Fruit")
+crystal_fruit
 ```
 
