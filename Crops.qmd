@@ -1,5 +1,5 @@
 ---
-title: "Mini-Project 2"
+title: "Crops"
 author: "Rain & Ziling"
 sidebar: false
 format:
@@ -27,8 +27,6 @@ library(tidycensus)
 library(purrr)
 ```
 
->> TABLE SCRAPING FOR SDS 264
-
 ```{r}
 robotstxt::paths_allowed("https://stardewvalleywiki.com/Stardew_Valley_Wiki")
 
@@ -37,7 +35,6 @@ session <- bow("https://stardewvalleywiki.com/Stardew_Valley_Wiki", force = TRUE
 
 
 ```{r}
-#Perform Steps 0-3 using the polite package
 crops <- bow("https://stardewvalleywiki.com/Crops", force = TRUE)
 
 result <- scrape(crops) |>
@@ -323,7 +320,7 @@ write.csv(crops_prices, "crop_prices.csv")
 
 ```{r}
 seasons <- result[[134]] %>%
-  select(season = 1, Crops = 2) |>
+  select(Season = 1, Crops = 2) |>
   mutate(Crops = strsplit(Crops, " • ", fixed = TRUE)) |>
   unnest(Crops) |>
   mutate(Crops = str_replace_all(Crops, " ", "_"))

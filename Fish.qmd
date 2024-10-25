@@ -27,6 +27,27 @@ library(tidycensus)
 library(purrr)
 ```
 
+```{r}
+fish <- bow("https://stardewvalleywiki.com/Fish", force = TRUE)
+
+result <- scrape(fish) |>
+  html_nodes(css = "table") |>
+  html_table(header = TRUE, fill = TRUE)
+
+fishes <- result[[225]][2] #table of the fish so we can use that list
+
+fishes <- fishes |>
+  mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
+  unnest(Fish) |>
+  mutate(Fish = str_replace_all(Fish, " ", "_")) |>
+  distinct(Fish)
+
+locations <- result[[225]] |> 
+  select(Location = 1, Fish = 2) |>
+  mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
+  unnest(Fish) |>
+  mutate(Fish = str_replace_all(Fish, " ", "_"))
+```
 
 
 https://stardewvalleywiki.com/Fish
