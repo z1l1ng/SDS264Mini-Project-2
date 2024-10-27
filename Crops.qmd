@@ -60,20 +60,23 @@ get_price <- function(page, css_selector) {
 # function for base prices
 base_prices <- function(crop) {
   url <- str_c("https://stardewvalleywiki.com/", crop)
-    page <- read_html(url)
-    regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(1) td+ td")
-    silver_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(2) td+ td")
-    gold_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(3) td+ td")
-    iridium_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) tr:nth-child(4) td+ td")
-    item <- crop
-    
-    tibble(
-      item = item,
-      regular_price = parse_number(regular_price),
-      silver_price = parse_number(silver_price), 
-      gold_price = parse_number(gold_price),
-      iridium_price = parse_number(iridium_price)
-    )
+  page <- read_html(url)
+  
+  qualities <- c("regular", "silver", "gold", "iridium")
+  prices <- list()
+  
+  for (i in seq_along(qualities)) {
+    price <- get_price(page, str_c("tr:nth-child(10) tr td:nth-child(1) tr:nth-child(", i, ") td+ td"))
+    prices[[qualities[i]]] <- parse_number(price)
+  }
+  
+  tibble(
+    item = crop,
+    regular_price = prices$regular,
+    silver_price = prices$silver,
+    gold_price = prices$gold,
+    iridium_price = prices$iridium
+  )
 }
 ```
 
@@ -89,20 +92,23 @@ base_crop_prices <- bind_rows(prices) |>
 ```{r}
 tiller_prices <- function(crop) {
   url <- str_c("https://stardewvalleywiki.com/", crop)
-    page <- read_html(url)
-    regular_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(1) td+ td")
-    silver_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(2) td+ td")
-    gold_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(3) td+ td")
-    iridium_price <- get_price(page, "tr:nth-child(10) td+ td tr:nth-child(4) td+ td")
-    item <- crop
-    
-    tibble(
-      item = item,
-      regular_price = parse_number(regular_price),
-      silver_price = parse_number(silver_price), 
-      gold_price = parse_number(gold_price),
-      iridium_price = parse_number(iridium_price)
-    )
+  page <- read_html(url)
+  
+  qualities <- c("regular", "silver", "gold", "iridium")
+  prices <- list()
+  
+  for (i in seq_along(qualities)) {
+    price <- get_price(page, str_c("tr:nth-child(10) td+ td tr:nth-child(", i, ") td+ td"))
+    prices[[qualities[i]]] <- parse_number(price)
+  }
+  
+  tibble(
+    item = crop,
+    regular_price = prices$regular,
+    silver_price = prices$silver,
+    gold_price = prices$gold,
+    iridium_price = prices$iridium
+  )
 }
 ```
 
@@ -194,25 +200,25 @@ qi_fruit
 
 # Base
 shifted_down_table <- function(crop){
-url <- str_c("https://stardewvalleywiki.com/", crop)
-page <- read_html(url)
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+  page <- read_html(url)
     regular_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(1) td+ td")
     silver_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(2) td+ td")
     gold_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(3) td+ td")
     iridium_price <- get_price(page, "tr:nth-child(11) tr td:nth-child(1) tr:nth-child(4) td+ td")
-base_tbl <- tibble(
+  base_tbl <- tibble(
       item = crop,
       regular_price = parse_number(regular_price),
       silver_price = parse_number(silver_price), 
       gold_price = parse_number(gold_price),
       iridium_price = parse_number(iridium_price))
 
-# Tiller
+  # Tiller
     regular_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(1) td+ td")
     silver_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(2) td+ td")
     gold_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(3) td+ td")
     iridium_price <- get_price(page, "tr:nth-child(11) td+ td tr:nth-child(4) td+ td")
-tiller_tbl <- tibble(
+  tiller_tbl <- tibble(
       item = crop,
       regular_price = parse_number(regular_price),
       silver_price = parse_number(silver_price), 
@@ -220,7 +226,7 @@ tiller_tbl <- tibble(
       iridium_price = parse_number(iridium_price),
       profession = "Tiller")
 
-bind_rows(base_tbl,tiller_tbl)
+  bind_rows(base_tbl,tiller_tbl)
 }
 
 cactus_fruit <- shifted_down_table("Cactus_Fruit")
@@ -284,16 +290,23 @@ wild_plum
 # Base
 url <- str_c("https://stardewvalleywiki.com/", "Blackberry")
 page <- read_html(url)
-    regular_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(1) td+ td")
-    silver_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(2) td+ td")
-    gold_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(3) td+ td")
-    iridium_price <- get_price(page, "tr:nth-child(9) tr td:nth-child(1) tr:nth-child(4) td+ td")
+
+qualities <- c("regular", "silver", "gold", "iridium")
+prices <- list()
+
+# Loop to retrieve and parse prices
+for (i in seq_along(qualities)) {
+  price <- get_price(page, str_c("tr:nth-child(9) tr td:nth-child(1) tr:nth-child(", i, ") td+ td"))
+  prices[[qualities[i]]] <- parse_number(price)
+}
+
 blackberry <- tibble(
-      item = "Blackberry",
-      regular_price = parse_number(regular_price),
-      silver_price = parse_number(silver_price), 
-      gold_price = parse_number(gold_price),
-      iridium_price = parse_number(iridium_price))
+  item = "Blackberry",
+  regular_price = prices$regular,
+  silver_price = prices$silver,
+  gold_price = prices$gold,
+  iridium_price = prices$iridium
+)
 
 blackberry
 ```
@@ -314,8 +327,6 @@ crystal_fruit
 
 ```{r}
 crops_prices <- bind_rows(draft_crops2, tea_leaves, qi_fruit, cactus_fruit, grape, coffee_bean, wild_plum, blackberry, spice_berry, crystal_fruit)
-
-write.csv(crops_prices, "crop_prices.csv")
 ```
 
 ```{r}
@@ -324,5 +335,15 @@ seasons <- result[[134]] %>%
   mutate(Crops = strsplit(Crops, " • ", fixed = TRUE)) |>
   unnest(Crops) |>
   mutate(Crops = str_replace_all(Crops, " ", "_"))
+```
+
+#Tidy up the data so it is ready to merge with other datasets
+```{r}
+crop_prices <- crops_prices|>
+  left_join(seasons, join_by(item == Crops))|>
+   mutate(category = "crop",
+          sub_category = str_c(Season, " Crop"))
+
+write.csv(crops_prices, "crop_prices.csv")
 ```
 

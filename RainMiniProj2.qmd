@@ -91,6 +91,8 @@ tidy_sd_animal_price <- sd_animal_prices|>
               values_fn = mean)|>
   clean_names()|>
   mutate(category = "animal product")
+
+write.csv(tidy_sd_animal_price, "animal_product_prices.csv")
 ```
 
 ### List of Minerals
@@ -157,17 +159,11 @@ minerals_tbl[[4]]<- result_minerals[[4]]|>
 tidy_sd_minerals_price <- bind_rows(minerals_tbl)
 ```
 
-###List of Fish
-
 ```{r}
-robotstxt::paths_allowed("https://stardewvalleywiki.com/Fish")
-
-session <- bow("https://stardewvalleywiki.com/Fish", force = TRUE)
-
-result_fish <- scrape(session) |>
-  html_nodes("nth-child(43)") |> 
-  html_table(header = TRUE, fill = TRUE)
-
+write.csv(tidy_sd_minerals_price, "minerals_prices.csv")
 ```
+
+
+
 
 
