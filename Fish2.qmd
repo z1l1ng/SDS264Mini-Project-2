@@ -57,3 +57,173 @@ subcategory <- result[[225]] |>
   mutate(Fish = str_replace_all(Fish, " ", "_"))
 ```
 
+```{r}
+# function for getting the price at a given page and css selector
+get_price <- function(page, css_selector) {
+  page |>
+  html_nodes(css_selector) |>
+  html_text()
+}
+
+# function for creating a tibble of prices for a given fish, for one of the 4 different tables they have for the fish, this takes care of almost all of our fish
+fish_base_prices <- function(fish, fisher = FALSE, angler = FALSE, nthchild_num) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+  page <- read_html(url)
+  
+  qualities <- c("regular", "silver", "gold", "iridium")
+  prices <- list()
+  
+  for (i in seq_along(qualities)) {
+    if (fisher) {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(2) tr:nth-child(", i, ") td+ td")
+    } else if (angler) {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(3) tr:nth-child(", i, ") td+ td")
+    } 
+    else {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(1) tr:nth-child(", i, ") td+ td")
+    }
+    price <- get_price(page, selector)
+    prices[[qualities[i]]] <- parse_number(price)
+  }
+  
+  tibble(
+    item = fish,
+    regular_price = prices$regular,
+    silver_price = prices$silver,
+    gold_price = prices$gold,
+    iridium_price = prices$iridium
+  )
+}
+```
+
+```{r}
+fish_base_prices2 <- function(fish, fisher = FALSE, angler = FALSE, nthchild_num) {
+  url <- str_c("https://stardewvalleywiki.com/", fish)
+  page <- read_html(url)
+  
+  qualities <- c("regular", "silver", "gold", "iridium")
+  prices <- list()
+  
+  for (i in seq_along(qualities)) {
+    if (fisher) {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(2) tr:nth-child(", i, ") td+ td")
+    } else if (angler) {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(3) tr:nth-child(", i, ") td+ td")
+    } 
+    else {
+      selector <- str_c("tr:nth-child(", nthchild_num,") tr td:nth-child(1) tr:nth-child(", i, ") td+ td")
+    }
+    price <- get_price(page, selector)
+    prices[[qualities[i]]] <- parse_number(price)
+  }
+  
+  tibble(
+    item = fish,
+    regular_price = prices$regular,
+    silver_price = prices$silver,
+  )
+}
+```
+
+
+```{r}
+fishes_list <- pull(fishes) # List of our fishes tibble to view, then dividing up the fish by their website format
+
+# Loading in the fish we know that are tr:nth-child(14) in the html
+fishfor14 <- readRDS("~/SDS264/Class Files/MiniProject2/fishfor14.RDS")
+fishfor14
+
+# Loading in the fish we know that are tr:nth-child(15) in the html
+fishfor15 <- readRDS("~/SDS264/Class Files/MiniProject2/fishfor15.RDS")
+fishfor15
+
+# Loading in the fish we know that are tr:nth-child(10) in the html
+fishfor10 <- readRDS("~/SDS264/Class Files/MiniProject2/fishfor10.RDS")
+fishfor10 
+
+# Loading in the fish we know that are tr:nth-child(10) in the html
+fishleft <- readRDS("~/SDS264/Class Files/MiniProject2/fishleft.RDS")
+fishleft
+
+# Creating list of tbl's to store prices so that we can bind into one big tibble
+fish_prices <- vector("list", length = 12)
+
+# Base prices without profession for tr:nth-child(14)
+fish_prices[[1]] <- fishfor14 |>
+  purrr::map_dfr(~ fish_base_prices(.x, nthchild_num = 14)) |>
+  mutate(profession = as.character(NA))
+
+# Prices with Fisher profession
+fish_prices[[2]] <- fishfor14 |>
+  purrr::map_dfr(~ fish_base_prices(.x, fisher = TRUE, nthchild_num = 14)) |>
+  mutate(profession = "fisher")
+
+# Prices with Angler profession
+fish_prices[[3]] <- fishfor14 |>
+  purrr::map_dfr(~ fish_base_prices(.x, angler = TRUE, nthchild_num = 14)) |>
+  mutate(profession = "angler")
+```
+
+```{r}
+# Base prices without profession for tr:nth-child(15)
+fish_prices[[4]] <- fishfor15 |>
+  purrr::map_dfr(~ fish_base_prices(.x, nthchild_num = 15)) |>
+  mutate(profession = as.character(NA))
+
+# Prices with Fisher profession
+fish_prices[[5]] <- fishfor15 |>
+  purrr::map_dfr(~ fish_base_prices(.x, fisher = TRUE, nthchild_num = 15)) |>
+  mutate(profession = "fisher")
+
+# Prices with Angler profession
+fish_prices[[6]] <- fishfor15 |>
+  purrr::map_dfr(~ fish_base_prices(.x, angler = TRUE, nthchild_num = 15)) |>
+  mutate(profession = "angler")
+```
+
+```{r}
+# Base prices without profession for tr:nth-child(10)
+fish_prices[[7]] <- fishfor10 |>
+  purrr::map_dfr(~ fish_base_prices(.x, nthchild_num = 10)) |>
+  mutate(profession = as.character(NA))
+
+# Prices with Fisher profession
+fish_prices[[8]] <- fishfor10 |>
+  purrr::map_dfr(~ fish_base_prices(.x, fisher = TRUE, nthchild_num = 10)) |>
+  mutate(profession = "fisher")
+
+# Prices with Angler profession
+fish_prices[[9]] <- fishfor10 |>
+  purrr::map_dfr(~ fish_base_prices(.x, angler = TRUE, nthchild_num = 10)) |>
+  mutate(profession = "angler")
+```
+
+```{r}
+# Base prices without profession for tr:nth-child(10) but only two qualities
+fish_prices[[10]] <- fishleft |>
+  purrr::map_dfr(~ fish_base_prices2(.x, nthchild_num = 10)) |>
+  mutate(profession = as.character(NA))
+
+# Prices with Fisher profession
+fish_prices[[11]] <- fishleft |>
+  purrr::map_dfr(~ fish_base_prices2(.x, fisher = TRUE, nthchild_num = 10)) |>
+  mutate(profession = "fisher")
+
+# Prices with Angler profession
+fish_prices[[12]] <- fishleft |>
+  purrr::map_dfr(~ fish_base_prices2(.x, angler = TRUE, nthchild_num = 10)) |>
+  mutate(profession = "angler")
+```
+
+```{r}
+tidy_fish_prices <- fish_prices[[1]] 
+
+for (i in 2:12){
+  tidy_fish_prices <- bind_rows(tidy_fish_prices, fish_prices[[i]])
+}
+
+tidy_fish_prices 
+
+write.csv(tidy_fish_prices, "fish_prices.csv")
+```
+
