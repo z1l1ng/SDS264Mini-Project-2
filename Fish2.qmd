@@ -1,0 +1,59 @@
+---
+title: "Fish2"
+author: "Rain & Ziling"
+sidebar: false
+format:
+  html: default
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(rvest)
+library(polite)
+library(sf)
+library(maps)
+library(viridis)
+library(leaflet)
+library(htmltools)
+library(janitor)
+library(httr2)
+library(httr)
+library(lubridate)
+library(tidycensus)
+library(purrr)
+```
+
+```{r}
+# Making sure that this irl is scrapable
+fish <- bow("https://stardewvalleywiki.com/Fish", force = TRUE) 
+
+# Scraping table to get a list of all the fish 
+result <- scrape(fish) |>
+  html_nodes(css = "table") |>
+  html_table(header = TRUE, fill = TRUE)
+
+# The correct table for the list of fish, and only keeping the names of the fish column
+fishes <- result[[225]][2] 
+
+# However, it is formatted very poorly so we need to tidy it up 
+fishes <- fishes |>
+  mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
+  unnest(Fish) |>
+  # splitting the string since " • " was used to separate all fish
+  mutate(Fish = str_replace_all(Fish, " ", "_")) |> 
+  distinct(Fish) |>
+  # this is a fish that is in the data set twice but with different spacing 
+  filter(Fish != "_Super_Cucumber") 
+
+# This is a tibble with the subcategories of the fish and the fish name for joining later
+subcategory <- result[[225]] |> 
+  select(Location = 1, Fish = 2) |> 
+  mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |> 
+  unnest(Fish) |>
+  mutate(Fish = str_replace_all(Fish, " ", "_"))
+```
+

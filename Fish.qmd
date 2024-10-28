@@ -43,7 +43,7 @@ fishes <- fishes |>
   distinct(Fish) |>
   filter(Fish != "_Super_Cucumber")
 
-locations <- result[[225]] |> 
+subcategory <- result[[225]] |> 
   select(Location = 1, Fish = 2) |>
   mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
   unnest(Fish) |>
