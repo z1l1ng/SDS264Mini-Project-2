@@ -38,9 +38,12 @@ All of our data has been accumulated from the [*Stardew Valley* Wiki](https://st
 
 ### Crops
 
+Crops was the most difficult item to scrape from the wiki, since not all of the pages are structured the same. However, we tried our best to automate where we could.
+
 We start be getting a list of all the different crops in the game.
 
 ```{r}
+#check that we are allowed to scrape the wiki
 robotstxt::paths_allowed("https://stardewvalleywiki.com/Stardew_Valley_Wiki")
 
 session <- bow("https://stardewvalleywiki.com/Stardew_Valley_Wiki", force = TRUE)
@@ -145,52 +148,276 @@ nonseasonal_crop_tbl <- bind_rows(base_other_crops, tiller_other_crops) |>
   arrange(item)
 ```
 
-#Finally for the weird crops
+Finally, create a function for the weird crops that have missing quality or selector path was different
 
 ```{r}
+#function for the crops that do not have different qualities
 crop_weird_prices <- function(item, selector){
   url <- str_c("https://stardewvalleywiki.com/", item)
   page <- read_html(url)
-  regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) td+ td")
+  regular_price <- get_price(page, selector)
   
   tibble(item = item,
       regular_price = parse_number(regular_price))
 }
-# Tea Leaves
-# Base
-base_tea_leaves <- crop_weird_prices
 
-# Base
-url <- str_c("https://stardewvalleywiki.com/", "Tea_Leaves")
-page <- read_html(url)
-regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) td+ td")
-base_tea_leaves <- tibble(
-      item = "Tea_Leaves",
-      regular_price = parse_number(regular_price))
-
-# Tiller
-regular_price <- get_price(page, "tr:nth-child(10) td+ td td+ td")
-tiller_tea_leaves <- tibble(
-      item = "Tea_Leaves",
+#function for the crops that have different qualities. the Berry is for the fruits that have a weird selector that seems to follow a similar pattern.
+crop_weird_prices_w_quality <- function(crop, tiller = FALSE, berry = FALSE ){
+  url <- str_c("https://stardewvalleywiki.com/", crop)
+  page <- read_html(url)
+  
+  qualities <- c("regular", "silver", "gold", "iridium")
+  prices <- list()
+  
+  for (i in seq_along(qualities)) {
+    if (tiller) {
+      selector <- str_c("tr:nth-child(11) td+ td tr:nth-child(", i, ") td+ td")
+    } else if (berry){
+      selector <- str_c("tr:nth-child(9) tr:nth-child(", i, ") td+ td")
+    }else {
+      selector <- str_c("tr:nth-child(11) tr td:nth-child(1) tr:nth-child(", i, ") td+ td")
+    }
+    price <- get_price(page, selector)
+    prices[[qualities[i]]] <- parse_number(price)
+  }
+  
+  tibble(
+      item = crop,
       regular_price = parse_number(regular_price),
-      profession = "Tiller")
-
-tea_leaves <-bind_rows(base_tea_leaves, tiller_tea_leaves)
-tea_leaves
+      silver_price = parse_number(silver_price), 
+      gold_price = parse_number(gold_price),
+      iridium_price = parse_number(iridium_price))
+}
 
 ```
 
-Combine all of the crop tibbles into one:
+Now we make all of the tibbles for the weird crops.
+
+```{r}
+# Tea Leaves
+base_tea_leaves <- crop_weird_prices("Tea_Leaves",
+                                     "tr:nth-child(10) tr td:nth-child(1) td+ td")
+tiller_tea_leaves <- crop_weird_prices("Tea_Leaves",
+                                     "tr:nth-child(10) td+ td td+ td")
+
+tea_leaves <-bind_rows(base_tea_leaves, tiller_tea_leaves)
+
+#Qi_Fruit
+base_qi_fruit <-crop_weird_prices("Qi_Fruit",
+                                  "tr:nth-child(9) tr td:nth-child(1) td+ td")
+tiller_qi_fruit <-crop_weird_prices("Qi_Fruit",
+                                  "tr:nth-child(9) td+ td td+ td")
+
+qi_fruit <-bind_rows(base_qi_fruit, tiller_qi_fruit)
+
+#cactus fruit
+cactus_fruit <- crop_weird_prices_w_quality("Cactus_Fruit")
+cactus_fruit_tiller <- crop_weird_prices_w_quality("Cactus_Fruit", tiller = TRUE)
+
+cactus_fruit <-bind_rows(cactus_fruit, cactus_fruit_tiller)
+
+#Grape
+grape <- crop_weird_prices_w_quality("Grape")
+grape_tiller <- crop_weird_prices_w_quality("Grape", tiller = TRUE)
+
+grape <-bind_rows(grape, grape_tiller)
+
+#coffee_bean
+coffee_bean <- crop_weird_prices_w_quality("Coffee_Bean")
+
+#wild_plum
+wild_plum <- crop_weird_prices_w_quality("Wild_Plum", berry = TRUE)
+
+#spice_berry
+spice_berry <- crop_weird_prices_w_quality("Spice_Berry", berry = TRUE)
+
+#Crystal_Fruit
+crystal_fruit <- crop_weird_prices_w_quality("Crystal_Fruit", berry = TRUE)
+
+#finally, blackberry is just weird and likes to be different, so we did not use a function for it. 
+#Blackberry
+
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Blackberry")
+page <- read_html(url)
+
+qualities <- c("regular", "silver", "gold", "iridium")
+prices <- list()
+
+# Loop to retrieve and parse prices
+for (i in seq_along(qualities)) {
+  price <- get_price(page, str_c("tr:nth-child(9) tr td:nth-child(1) tr:nth-child(", i, ") td+ td"))
+  prices[[qualities[i]]] <- parse_number(price)
+}
+
+blackberry <- tibble(
+  item = "Blackberry",
+  regular_price = prices$regular,
+  silver_price = prices$silver,
+  gold_price = prices$gold,
+  iridium_price = prices$iridium
+)
+
+
+```
+
+Now, we can combine all of the crop tibbles into one:
 
 ```{r}
 # First chunks of crops 
 draft_crops <- bind_rows(seasonal_crop_prices,
-                         nonseasonal_crop_tbl) |>
+                         nonseasonal_crop_tbl,
+                         tea_leaves, 
+                         qi_fruit, 
+                         cactus_fruit, 
+                         grape, 
+                         coffee_bean, 
+                         wild_plum, 
+                         blackberry, 
+                         spice_berry, 
+                         crystal_fruit) |>
   arrange(item)
+```
+
+Lastly, we can add in the category variable and the subcategory variable. to makes things easier, we decided the subcategory would be the crop's season. Then, we write it to a csv in case the website changes or updates.
+
+```{r}
+seasons <- result[[134]] %>%
+  select(Season = 1, Crops = 2) |>
+  mutate(Crops = strsplit(Crops, " • ", fixed = TRUE)) |>
+  unnest(Crops) |>
+  mutate(Crops = str_replace_all(Crops, " ", "_"))
+```
+
+```{r}
+crop_prices <- crops_prices|>
+  left_join(seasons, join_by(item == Crops))|>
+   mutate(category = "crop",
+          sub_category = str_c(Season, " Crop"))|>
+  select(-Season)
+
+write.csv(crops_prices, "crop_prices.csv")
+head(crop_prices, n= 10)
 ```
 
 ### Fish
 
 ### Animal Products
 
+```{r}
+#first be polite and check that we can scrape it 
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Animal_Products_Profitability")
+
+session <- bow("https://stardewvalleywiki.com/Animal_Products_Profitability", force = TRUE)
+
+#take the second table, because that is the one we are interested in
+result_animals <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+
+sd_animal_prices <- result_animals[[2]]
+```
+
+```{r}
+#clean up the sd_animal_prices tibble
+tidy_sd_animal_price <- sd_animal_prices|>
+  clean_names()|>
+  select(item, 
+         profession, 
+         quality, 
+         sell_price)|> #select only the columns we want
+  group_by(item, profession)|>
+  pivot_wider(names_from = quality, 
+              values_from = sell_price, 
+              names_glue = "{quality}_price",
+              values_fn = mean)|>
+  clean_names()|>
+  mutate(category = "animal product",
+         profession = ifelse(profession == "—", NA, profession))
+
+#write the final version to a csv
+write.csv(tidy_sd_animal_price, "animal_product_prices.csv")
+head(tidy_sd_animal_price, n = 10)
+```
+
 ### Minerals
+
+```{r}
+
+#first be polite and check that we can scrape it 
+robotstxt::paths_allowed("https://stardewvalleywiki.com/Minerals")
+
+session <- bow("https://stardewvalleywiki.com/Minerals", force = TRUE)
+
+result_minerals <- scrape(session) |>
+  html_nodes(css = "table") |> 
+  html_table(header = TRUE, fill = TRUE)
+#interested in tables 1-4
+```
+
+```{r}
+
+#This function takes a scraped minerals table and preps it for joining with other datasets
+tidy_minerals <- function(data, sub_cat){
+  data|>
+  clean_names()|>
+  mutate(item = name,
+         category = "mineral",
+         sub_category = sub_cat)|>
+  rename(regular_sell_price = sell_price)|>
+  pivot_longer(
+    cols = c(gemologist_sell_price,
+             regular_sell_price),
+    names_to = "profession",
+    values_to = "sell_price"
+  )|>
+  select(item, 
+         profession, 
+         sell_price,
+         category,
+         sub_category)|>
+  mutate(sell_price = as.numeric(str_extract(sell_price, '(?<=data-sort-value=")\\d+')),
+         profession = ifelse(profession == "gemologist_sell_price",
+                             "gemologist", NA))
+  
+ 
+}
+
+#use function for the 1-3 tables using a for loop
+minerals_tbl <- vector("list", length = 4)
+mineral_sub_cat <- c("foraged mineral",
+                     "gem",
+                     "geode mineral",
+                     "geode")
+for (i in 1:3){
+  minerals_tbl[[i]] <- tidy_minerals(result_minerals[[i]], mineral_sub_cat[i])
+  
+}
+
+#clean up the variable names so that it is ready for the row bind. make sure the category is all mineral, and the sub_category is correct
+minerals_tbl[[4]]<- result_minerals[[4]]|>
+  clean_names()|>
+  mutate(item = name,
+         category = "mineral",
+         sub_category = "geode",
+         sell_price = as.numeric(str_extract(sell_price, '(?<=data-sort-value=")\\d+')),
+         profession = NA)|>
+  select(item, sell_price, category, sub_category, profession)
+
+tidy_sd_minerals_price <- bind_rows(minerals_tbl)
+```
+
+Write it to a csv in case the website changes or updates.
+
+```{r}
+write.csv(tidy_sd_minerals_price, "minerals_prices.csv")
+head(tidy_sd_minerals_price, n = 10)
+```
+
+#### Combined Dataset
+
+We then merge together all of the data sets for each of the 4 categories: crops, fish, animal products, and minerals.
+
+```{r}
+
+```
