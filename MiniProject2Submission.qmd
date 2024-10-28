@@ -101,7 +101,7 @@ crop_base_prices <- function(crop, tiller = FALSE) {
 
 ```
 
-Create the tibbles for seasonal crops using the helper functions. Note that items 46 (Tea_Leaves), 44(Sweet Gem Berry), 43(Qi_Fruit), 41(Cactus_Fruit), 36(Grape), 4(Coffee_Bean) have issues when using the functions, so we will scrape the data manually without the functions. 
+Create the tibbles for seasonal crops using the helper functions. Note that items 46 (Tea_Leaves), 44(Sweet Gem Berry), 43(Qi_Fruit), 41(Cactus_Fruit), 36(Grape), 4(Coffee_Bean) have issues when using the functions, so we will scrape the data manually without the functions.
 
 ```{r}
 # List of crops, excluding those with known issues
@@ -121,7 +121,9 @@ tiller_crop_prices <- valid_crops_list |>
 seasonal_crop_prices <- bind_rows(base_crop_prices, tiller_crop_prices)
 seasonal_crop_prices
 ```
+
 Do the same for non seasonal crops:
+
 ```{r}
 # Non-seasonal crops list, excluding problematic items
 other_crops <- c("Apple", "Blackberry", "Pomegranate", "Wild_Plum", "Apricot", 
@@ -145,15 +147,48 @@ nonseasonal_crop_tbl <- bind_rows(base_other_crops, tiller_other_crops) |>
 
 #Finally for the weird crops
 
+```{r}
+crop_weird_prices <- function(item, selector){
+  url <- str_c("https://stardewvalleywiki.com/", item)
+  page <- read_html(url)
+  regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) td+ td")
+  
+  tibble(item = item,
+      regular_price = parse_number(regular_price))
+}
+# Tea Leaves
+# Base
+base_tea_leaves <- crop_weird_prices
 
+# Base
+url <- str_c("https://stardewvalleywiki.com/", "Tea_Leaves")
+page <- read_html(url)
+regular_price <- get_price(page, "tr:nth-child(10) tr td:nth-child(1) td+ td")
+base_tea_leaves <- tibble(
+      item = "Tea_Leaves",
+      regular_price = parse_number(regular_price))
+
+# Tiller
+regular_price <- get_price(page, "tr:nth-child(10) td+ td td+ td")
+tiller_tea_leaves <- tibble(
+      item = "Tea_Leaves",
+      regular_price = parse_number(regular_price),
+      profession = "Tiller")
+
+tea_leaves <-bind_rows(base_tea_leaves, tiller_tea_leaves)
+tea_leaves
+
+```
 
 Combine all of the crop tibbles into one:
+
 ```{r}
 # First chunks of crops 
 draft_crops <- bind_rows(seasonal_crop_prices,
                          nonseasonal_crop_tbl) |>
   arrange(item)
 ```
+
 ### Fish
 
 ### Animal Products
