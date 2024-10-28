@@ -255,6 +255,7 @@ empty_indices3 <- which(sapply(prices3, function(tbl) nrow(tbl) == 0))
 fish_needed3 <- fish_needed2[empty_indices3]
 
 fishfor10 <- setdiff(fish_needed2, fish_needed3)
+
 saveRDS(fishfor10, "fishfor10.RDS")
 
 saveRDS(fish_needed3, "fishleft.RDS")
