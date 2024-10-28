@@ -43,7 +43,7 @@ fishes <- fishes |>
   distinct(Fish) |>
   filter(Fish != "_Super_Cucumber")
 
-locations <- result[[225]] |> 
+subcategory <- result[[225]] |> 
   select(Location = 1, Fish = 2) |>
   mutate(Fish = strsplit(Fish, " • ", fixed = TRUE)) |>
   unnest(Fish) |>
@@ -114,11 +114,14 @@ fishes_list <- pull(fishes) # list of our fishes tibble
 prices <- purrr::map(fishes_list, threeprofessions)
 
 draft_fish <- bind_rows(prices) |>
-  arrange(item)
+  arrange(item) |>
 
 empty_indices <- which(sapply(prices, function(tbl) nrow(tbl) == 0))
 
 fish_needed <- fishes_list[empty_indices]
+
+fishfor14 <- setdiff(fishes_list, fish_needed)
+saveRDS(fishfor14, "fishfor14.RDS")
 ```
 
 ```{r}
@@ -184,6 +187,9 @@ shifted_fish <- bind_rows(prices2) |>
 empty_indices2 <- which(sapply(prices2, function(tbl) nrow(tbl) == 0))
 
 fish_needed2 <- fish_needed[empty_indices2]
+
+fishfor15 <- setdiff(fish_needed, fish_needed2)
+saveRDS(fishfor15, "fishfor15.RDS")
 ```
 
 ```{r}
@@ -247,6 +253,11 @@ shifted_fish3 <- bind_rows(prices3) |>
 empty_indices3 <- which(sapply(prices3, function(tbl) nrow(tbl) == 0))
 
 fish_needed3 <- fish_needed2[empty_indices3]
+
+fishfor10 <- setdiff(fish_needed2, fish_needed3)
+saveRDS(fishfor10, "fishfor10.RDS")
+
+saveRDS(fish_needed3, "fishleft.RDS")
 ```
 
 ```{r}
