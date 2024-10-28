@@ -513,6 +513,7 @@ for (i in 2:12){
 
 # writing our tbl as a csv so that we can join with the other items 
 write.csv(tidy_fish_prices, "fish_prices.csv")
+head(tidy_fish_prices, n = 10)
 ```
 
 ### Animal Products
@@ -634,5 +635,6 @@ We then merge together all of the data sets for each of the 4 categories: crops,
 ```{r}
 stardew_items <- bind_rows(crops_prices, 
                            tidy_sd_animal_price, 
-                           tidy_sd_minerals_price)
+                           tidy_sd_minerals_price,
+                           tidy_fish_prices)
 ```
