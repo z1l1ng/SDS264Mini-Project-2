@@ -1,0 +1,86 @@
+---
+title: "Crops Visualizations"
+author: "Rain & Ziling"
+sidebar: false
+format:
+  html: default
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Function to create a calendar
+create_calendar <- function(events = NULL) {
+  # Create the basic calendar structure
+  days <- data.frame(
+    day = 1:28,
+    week = rep(1:4, each = 7),
+    weekday = factor(
+      rep(c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"), 4),
+      levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    )
+  )
+  
+  # Generate recurring events
+  if (!is.null(events)) {
+    event_days <- events |>
+      rowwise() |>
+      mutate(days = list(seq(from = start_day, to = 28, by = interval))) |>
+      unnest(days) |>
+      select(day = days, event_name)
+    
+    # Handle overlapping events by grouping them
+    event_days <- event_days |>
+      group_by(day) |>
+      summarize(
+        event_name = paste(unique(event_name), collapse = " & ")) |>
+      ungroup()
+    
+    days <- days |>
+      left_join(event_days, by = "day")
+  }
+
+  all_events <- unique(days$event_name)
+
+  # Create the calendar using ggplot2
+  ggplot(days, aes(x = weekday, y = -week, fill = event_name)) +
+    geom_tile(color = "black", size = 0.8) + # Tiles for the calendar
+    geom_text(aes(label = day), size = 5, vjust = -1, family = "AppleGothic") + # Days at the top
+    theme(
+      axis.text.x = element_text(size = 12, family = "AppleGothic"),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title = element_blank(),
+      panel.grid = element_blank(),
+      plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+      legend.title = element_text(size = 12, face = "bold", family = "AppleGothic"),  
+      legend.text = element_text(size = 10, family = "AppleGothic"),
+      plot.title = element_text(size = 16, family = "AppleGothic", face = "bold") 
+    ) +
+    scale_x_discrete(position = "top") + # No extra space on y-axis
+    labs(title = "Spring",
+         fill = "Crops")
+}
+
+# Example usage:
+# Define recurring events
+events <- data.frame(
+  start_day = c(1, 1, 1),       # Start day of each event
+  interval = c(3, 5, 2),        # Recurrence interval (e.g., every 3 days, every 5 days, every 7 days)
+  event_name = c("Peppers", "Greenbeans", "Grapes") # Event names
+)
+
+# Plot the calendar
+create_calendar(events)
+
+```
+
