@@ -111,5 +111,7 @@ seeds_needed2 <- seeds_needed[empty_indices2]
 ```{r}
 seed_details <- bind_rows(details, details2) |>
   arrange(item)
+
+write.csv(seed_details, "seed_details.csv")
 ```
 
