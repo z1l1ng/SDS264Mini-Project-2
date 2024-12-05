@@ -67,13 +67,19 @@ seeddeets <- function(seed) {
       growth_time = parse_number(growth_time),
       general_store = parse_number(general_store), 
       jojamart = parse_number(jojamart),
-      oasis <- parse_number(oasis)
-    )}
+      #oasis = parse_number(oasis)
+    )
+}
+
 ```
 
 ```{r}
-seeds_list <- pull(seeds)
+class(seeds$Seed)
 
+seeds_list <- as.vector(seeds$Seed)
+
+
+class(seeds_list)
 details <- purrr::map(seeds_list, seeddeets)
 
 draft_seed <- bind_rows(details) |>
@@ -147,6 +153,15 @@ seed_deets <- seed_details |>
          item = str_replace(item, "Spangle", "Summer_Spangle"),
          item = str_replace(item, "Rare", "Sweet_Gem_Berry"),
          item = str_replace(item, "Bean", "Green_Bean"))
+
+oasis <- data.frame(
+    item = c("Cactus_Fruit", "Rhubarb", "Starfruit", "Beet"),
+    oasis_price = c(150, 100, 400, 20)
+  )
+
+seed_deets<- seed_deets|>
+  left_join(oasis)
+
 
 write.csv(seed_deets, "seed_deets.csv")
 ```
