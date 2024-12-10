@@ -152,14 +152,17 @@ seed_deets <- seed_details |>
          item = str_replace(item, "Taro", "Taro_Root"),
          item = str_replace(item, "Spangle", "Summer_Spangle"),
          item = str_replace(item, "Rare", "Sweet_Gem_Berry"),
-         item = str_replace(item, "Bean", "Green_Bean"))
+         item = str_replace(item, "Bean", "Green_Bean"),
+         item = str_replace(item, "Ancient", "Ancient_Fruit"),
+         item = str_replace(item, "Pepper", "Hot_Pepper"),
+         item = str_replace(item, "Rice_Shoot", "Unmilled_Rice"))
 
 oasis <- data.frame(
     item = c("Cactus_Fruit", "Rhubarb", "Starfruit", "Beet"),
     oasis_price = c(150, 100, 400, 20)
   )
 
-seed_deets<- seed_deets|>
+seed_deets <- seed_deets|>
   left_join(oasis)
 
 
