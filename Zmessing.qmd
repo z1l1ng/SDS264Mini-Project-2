@@ -1,0 +1,77 @@
+---
+title: "messing around"
+author: "Ziling"
+sidebar: false
+format:
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(tidyverse)
+library(stringr)
+library(rvest)
+library(polite)
+library(sf)
+library(maps)
+library(viridis)
+library(leaflet)
+library(htmltools)
+library(janitor)
+library(httr2)
+library(httr)
+library(lubridate)
+library(tidycensus)
+library(purrr)
+```
+
+```{r}
+stardew_items <- read_csv("stardew_items.csv")
+seed_deets <- read_csv("seed_deets.csv")
+```
+
+```{r}
+fullcrops <- stardew_items |>
+  select(-1) |>
+  left_join(seed_deets |>
+  select(-1)) |>
+  filter(category == "crop")
+```
+
+```{r}
+#dont look
+tester <- fullcrops |>
+  mutate(
+    item_profession = str_c(item, "_" , profession),
+    # dollar per day
+    regular_dpd = regular_price/growth_time,
+    silver_dpd = silver_price/growth_time,
+    gold_dpd = gold_price/growth_time,
+    iridium_dpd = iridium_price/growth_time,
+    # general profit
+    regular_gp = regular_price - general_store,
+    silver_gp = silver_price - general_store,
+    gold_gp = gold_price - general_store,
+    iridium_gp = iridium_price - general_store,
+    # joja profit
+    regular_jp = regular_price - jojamart,
+    silver_jp = silver_price - jojamart,
+    gold_jp = gold_price - jojamart,
+    iridium_jp = iridium_price - jojamart,
+    ) 
+```
+
+```{r}
+# yea no....
+tester |>
+  filter(item == "Blueberry") |>
+  ggplot(aes(x = item, y = regular_gp, fill = profession)) +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+
+
+
+```
+
