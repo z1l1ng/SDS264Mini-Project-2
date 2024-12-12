@@ -320,5 +320,12 @@ ggplot() +
     axis.ticks.y = element_blank())
 ```
 
+```{r}
+minerals_prices <- read_csv("minerals_prices.csv")
+minerals_prices <- minerals_prices |>
+  mutate(profession = replace_na(profession, "none"))
+
+write_csv(minerals_prices, "minerals_prices.csv")
+```
 
 
